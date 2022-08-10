@@ -3,36 +3,52 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class LandingControll : MonoBehaviour
 {
+    [SerializeField] private const float _crushAngle = 44;
+
+    [SerializeField] private float _thrustForce = 3;
+    [SerializeField] private float _angleRotation = 30;
+    [SerializeField] private float _limitForce = 10;
     [SerializeField] private Rigidbody _rigidbody;
+
+    private float _horizontal;
+    private float _vertical;
+
 
     private void Start()
     {
         float x = Random.Range(-1, 1);
         float y = Random.Range(-1, 1);
         float z = Random.Range(-1, 1);
-        Vector3 randomDirection = new Vector3(x, y, z);
+        Vector3 randomDirection = new Vector3(x, y, z) * 500;
         //_rigidbody.AddTorque(randomDirection, ForceMode.Impulse);
     }
 
     private void Update()
     {
 #if UNITY_EDITOR
+        _horizontal = Input.GetAxisRaw("Horizontal");
+        _vertical  = Input.GetAxisRaw("Vertical");
         if (Input.GetKey(KeyCode.Space))
         {
-            _rigidbody.AddRelativeForce(Vector3.up);
+            _rigidbody.AddRelativeForce(Vector3.up * _thrustForce);
         }
-        transform.Rotate(Vector3.forward, Input.GetAxisRaw("Horizontal") * 30 * Time.deltaTime);
-        transform.Rotate(Vector3.right, Input.GetAxisRaw("Vertical") * 30 * Time.deltaTime);
 #endif
+
+        transform.Rotate(transform.forward, _horizontal * _angleRotation * Time.deltaTime);
+        transform.Rotate(transform.right, _vertical * _angleRotation * Time.deltaTime);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         float angle = Vector3.Angle(collision.contacts[0].normal, transform.up);
-        if (collision.relativeVelocity.magnitude <= 10 && angle < 44) 
+        if (collision.relativeVelocity.magnitude <= _limitForce && angle < _crushAngle)
         {
             Debug.Log("Победа");
         }
-        else Debug.Log("Разбился");
+        else
+        {
+            Debug.Log("Разбился");
+        }
+        Destroy(this);
     }
 }
