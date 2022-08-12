@@ -3,11 +3,8 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class LandingControll : MonoBehaviour
 {
-    [SerializeField] private const float _crushAngle = 44;
-
     [SerializeField] private float _thrustForce = 3;
     [SerializeField] private float _angleRotation = 30;
-    [SerializeField] private float _limitForce = 10;
     [SerializeField] private Rigidbody _rigidbody;
 
     private float _horizontal;
@@ -36,19 +33,5 @@ public class LandingControll : MonoBehaviour
 
         transform.Rotate(transform.forward, _horizontal * _angleRotation * Time.deltaTime);
         transform.Rotate(transform.right, _vertical * _angleRotation * Time.deltaTime);
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        float angle = Vector3.Angle(collision.contacts[0].normal, transform.up);
-        if (collision.relativeVelocity.magnitude <= _limitForce && angle < _crushAngle)
-        {
-            Debug.Log("Победа");
-        }
-        else
-        {
-            Debug.Log("Разбился");
-        }
-        Destroy(this);
     }
 }
