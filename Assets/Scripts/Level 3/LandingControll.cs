@@ -10,6 +10,9 @@ public class LandingControll : MonoBehaviour
     private float _horizontal;
     private float _vertical;
 
+    private ArduinoControl ac;
+    private GameObject al;
+
 
     private void Start()
     {
@@ -18,6 +21,11 @@ public class LandingControll : MonoBehaviour
         float z = Random.Range(-1, 1);
         Vector3 randomDirection = new Vector3(x, y, z) * 500;
         //_rigidbody.AddTorque(randomDirection, ForceMode.Impulse);
+        al = GameObject.Find("ArduinoLink"); 
+        ac = al.GetComponent<ArduinoControl>();
+        if (ac != null){
+            ac.setLevel(3);
+        }
     }
 
     private void Update()
@@ -30,7 +38,6 @@ public class LandingControll : MonoBehaviour
         //    _rigidbody.AddRelativeForce(Vector3.up * _thrustForce);
         //}
 #endif
-
         transform.Rotate(transform.forward, _horizontal * _angleRotation * Time.deltaTime);
         transform.Rotate(transform.right, _vertical * _angleRotation * Time.deltaTime);
     }
@@ -38,6 +45,17 @@ public class LandingControll : MonoBehaviour
     private void FixedUpdate()
     {
 #if UNITY_EDITOR
+        if (al == null){
+            al = GameObject.Find("ArduinoLink"); 
+            ac = al.GetComponent<ArduinoControl>();
+        }
+        if (ac != null && ac.available() > 0){
+            byte d = ac.getData();
+            if (d > 7){
+                Debug.Log("up!");
+                _rigidbody.AddRelativeForce(Vector3.up * _thrustForce);
+            }
+        }
         if (Input.GetKey(KeyCode.Space))
         {
             _rigidbody.AddRelativeForce(Vector3.up * _thrustForce);
